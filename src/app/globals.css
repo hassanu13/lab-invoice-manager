@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* DSD palette as CSS variables for any non-Tailwind consumers */
+    --color-eggshell: #f1efe9;
+    --color-cream: #ecdfd2;
+    --color-sand: #d2c6b5;
+    --color-moss: #a19f92;
+    --color-slate: #39393b;
+  }
+
+  html,
+  body {
+    @apply bg-eggshell text-slate antialiased;
+  }
+
+  body {
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+  }
+
+  /* Subtle scrollbar styling to match the brand */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-eggshell);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-sand);
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-moss);
+  }
+}

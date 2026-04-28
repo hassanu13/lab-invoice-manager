@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# testing
+coverage/
+
+# next.js
+.next/
+out/
+build/
+
+# production
+dist/
+
+# env files (NEVER commit secrets)
+.env
+.env*.local
+.env.production
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# logs
+*.log
+npm-debug.log*
+
+# local infra data
+infra/data/
+
+# local uploads (PDFs)
+uploads/

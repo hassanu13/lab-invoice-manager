@@ -1,0 +1,365 @@
+// Lab Invoice Manager — Prisma schema
+// Mirror of prisma/migrations/000_initial_schema.sql (the source-of-truth DDL).
+// We use raw SQL migrations (not `prisma migrate dev`) because the schema relies
+// on Postgres extensions (uuid-ossp, citext), enums, triggers and column-level
+// encryption — all of which Prisma's migration generator handles awkwardly.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+enum UserRole {
+  practice_manager
+  clinician
+  operations
+  finance
+  slt
+
+  @@map("user_role")
+}
+
+enum InvoiceStatus {
+  uploaded
+  pending_confirmation
+  awaiting_clinician
+  disputed
+  awaiting_operations
+  approved_for_finance
+  paid
+  rejected
+
+  @@map("invoice_status")
+}
+
+enum AuditAction {
+  read
+  create
+  update
+  delete
+  login
+  login_failed
+  export
+
+  @@map("audit_action")
+}
+
+// -----------------------------------------------------------------------------
+// Sites
+// -----------------------------------------------------------------------------
+model Site {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  slug         String   @unique
+  addressLine1 String?  @map("address_line1")
+  addressLine2 String?  @map("address_line2")
+  city         String?
+  postcode     String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  userRoles      UserSiteRole[]
+  clinicianSites ClinicianSite[]
+  patients       Patient[]
+  invoices       Invoice[]
+  budgets        Budget[]
+
+  @@map("site")
+}
+
+// -----------------------------------------------------------------------------
+// Users
+// -----------------------------------------------------------------------------
+model AppUser {
+  id            String    @id @default(uuid()) @db.Uuid
+  email         String    @unique @db.Citext
+  fullName      String    @map("full_name")
+  phone         String?
+  passwordHash  String    @map("password_hash")
+  mfaSecret     String?   @map("mfa_secret")
+  mfaEnrolled   Boolean   @default(false) @map("mfa_enrolled")
+  failedLogins  Int       @default(0) @map("failed_logins")
+  lockedUntil   DateTime? @map("locked_until") @db.Timestamptz(6)
+  lastLoginAt   DateTime? @map("last_login_at") @db.Timestamptz(6)
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  siteRoles      UserSiteRole[]
+  clinician      Clinician?
+  ownedInvoices  Invoice[]      @relation("InvoiceOwner")
+  createdInvoices Invoice[]     @relation("InvoiceCreator")
+  workflowEvents WorkflowEvent[]
+  attachments    Attachment[]
+  auditLogs      AuditLog[]
+  sessions       Session[]
+  budgets        Budget[]
+
+  @@map("app_user")
+}
+
+model UserSiteRole {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  siteId    String?  @map("site_id") @db.Uuid // null = group-wide (SLT, Finance)
+  role      UserRole
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site Site?   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, siteId, role])
+  @@index([userId], map: "idx_usr_user")
+  @@index([siteId], map: "idx_usr_site")
+  @@map("user_site_role")
+}
+
+// -----------------------------------------------------------------------------
+// Labs
+// -----------------------------------------------------------------------------
+model Lab {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @unique
+  contactEmail String?  @map("contact_email") @db.Citext
+  contactPhone String?  @map("contact_phone")
+  paymentTerms String?  @map("payment_terms")
+  templateKey  String?  @map("template_key")
+  active       Boolean  @default(true)
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  invoices Invoice[]
+
+  @@map("lab")
+}
+
+// -----------------------------------------------------------------------------
+// Clinicians
+// -----------------------------------------------------------------------------
+model Clinician {
+  id                   String    @id @default(uuid()) @db.Uuid
+  fullName             String    @map("full_name")
+  email                String?   @db.Citext
+  phone                String?
+  userId               String?   @unique @map("user_id") @db.Uuid
+  deductionPercentage  Decimal   @default(50.00) @map("deduction_percentage") @db.Decimal(5, 2)
+  active               Boolean   @default(true)
+  deletedAt            DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  user         AppUser?        @relation(fields: [userId], references: [id])
+  sites        ClinicianSite[]
+  invoiceLines InvoiceLine[]
+
+  @@map("clinician")
+}
+
+model ClinicianSite {
+  clinicianId String @map("clinician_id") @db.Uuid
+  siteId      String @map("site_id") @db.Uuid
+
+  clinician Clinician @relation(fields: [clinicianId], references: [id], onDelete: Cascade)
+  site      Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([clinicianId, siteId])
+  @@map("clinician_site")
+}
+
+// -----------------------------------------------------------------------------
+// Patients (encrypted)
+// -----------------------------------------------------------------------------
+model Patient {
+  id                     String    @id @default(uuid()) @db.Uuid
+  siteId                 String    @map("site_id") @db.Uuid
+  patientNameEncrypted   Bytes     @map("patient_name_encrypted")
+  patientNameSearchHash  String    @map("patient_name_search_hash")
+  dentallyPatientId      String?   @map("dentally_patient_id")
+  deletedAt              DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdAt              DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  site         Site          @relation(fields: [siteId], references: [id])
+  invoiceLines InvoiceLine[]
+
+  @@index([patientNameSearchHash], map: "idx_patient_search")
+  @@index([siteId], map: "idx_patient_site")
+  @@map("patient")
+}
+
+// -----------------------------------------------------------------------------
+// Invoices
+// -----------------------------------------------------------------------------
+model Invoice {
+  id                   String        @id @default(uuid()) @db.Uuid
+  siteId               String        @map("site_id") @db.Uuid
+  labId                String        @map("lab_id") @db.Uuid
+  invoiceNumber        String        @map("invoice_number")
+  invoiceDate          DateTime      @map("invoice_date") @db.Date
+  dueDate              DateTime?     @map("due_date") @db.Date
+  totalAmountGbp       Decimal       @map("total_amount_gbp") @db.Decimal(12, 2)
+  outstandingAmountGbp Decimal       @map("outstanding_amount_gbp") @db.Decimal(12, 2)
+  status               InvoiceStatus @default(uploaded)
+  currentOwnerUserId   String?       @map("current_owner_user_id") @db.Uuid
+  notes                String?
+  sourceAttachmentId   String?       @map("source_attachment_id") @db.Uuid
+  paidAt               DateTime?     @map("paid_at") @db.Timestamptz(6)
+  createdByUserId      String?       @map("created_by_user_id") @db.Uuid
+  createdAt            DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  site             Site            @relation(fields: [siteId], references: [id])
+  lab              Lab             @relation(fields: [labId], references: [id])
+  currentOwner     AppUser?        @relation("InvoiceOwner", fields: [currentOwnerUserId], references: [id])
+  createdBy        AppUser?        @relation("InvoiceCreator", fields: [createdByUserId], references: [id])
+  sourceAttachment Attachment?     @relation("InvoiceSourceAttachment", fields: [sourceAttachmentId], references: [id])
+  lines            InvoiceLine[]
+  attachments      Attachment[]    @relation("InvoiceAttachments")
+  workflowEvents   WorkflowEvent[]
+
+  @@unique([labId, invoiceNumber, siteId])
+  @@index([siteId, status], map: "idx_invoice_site_status")
+  @@index([labId], map: "idx_invoice_lab")
+  @@index([currentOwnerUserId], map: "idx_invoice_owner")
+  @@index([invoiceDate], map: "idx_invoice_date")
+  @@map("invoice")
+}
+
+model InvoiceLine {
+  id                    String   @id @default(uuid()) @db.Uuid
+  invoiceId             String   @map("invoice_id") @db.Uuid
+  patientId             String?  @map("patient_id") @db.Uuid
+  clinicianId           String?  @map("clinician_id") @db.Uuid
+  jobReference          String?  @map("job_reference")
+  workType              String?  @map("work_type")
+  toothOrArea           String?  @map("tooth_or_area")
+  lineAmountGbp         Decimal  @map("line_amount_gbp") @db.Decimal(12, 2)
+  clinicianDeductionGbp Decimal  @default(0) @map("clinician_deduction_gbp") @db.Decimal(12, 2)
+  notes                 String?
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  invoice   Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  patient   Patient?   @relation(fields: [patientId], references: [id])
+  clinician Clinician? @relation(fields: [clinicianId], references: [id])
+
+  @@index([invoiceId], map: "idx_line_invoice")
+  @@index([clinicianId], map: "idx_line_clinician")
+  @@index([patientId], map: "idx_line_patient")
+  @@map("invoice_line")
+}
+
+// -----------------------------------------------------------------------------
+// Attachments
+// -----------------------------------------------------------------------------
+model Attachment {
+  id                   String   @id @default(uuid()) @db.Uuid
+  invoiceId            String?  @map("invoice_id") @db.Uuid
+  s3Key                String   @unique @map("s3_key")
+  originalFilename     String   @map("original_filename")
+  contentType          String   @default("application/pdf") @map("content_type")
+  byteSize             BigInt   @map("byte_size")
+  ocrText              String?  @map("ocr_text")
+  extractionJson       Json?    @map("extraction_json")
+  extractionConfidence Decimal? @map("extraction_confidence") @db.Decimal(4, 3)
+  templateUsed         String?  @map("template_used")
+  uploadedByUserId     String?  @map("uploaded_by_user_id") @db.Uuid
+  uploadedAt           DateTime @default(now()) @map("uploaded_at") @db.Timestamptz(6)
+
+  invoice          Invoice?  @relation("InvoiceAttachments", fields: [invoiceId], references: [id], onDelete: Cascade)
+  sourceForInvoice Invoice[] @relation("InvoiceSourceAttachment")
+  uploadedBy       AppUser?  @relation(fields: [uploadedByUserId], references: [id])
+
+  @@index([invoiceId], map: "idx_attachment_invoice")
+  @@map("attachment")
+}
+
+// -----------------------------------------------------------------------------
+// Workflow events
+// -----------------------------------------------------------------------------
+model WorkflowEvent {
+  id          String         @id @default(uuid()) @db.Uuid
+  invoiceId   String         @map("invoice_id") @db.Uuid
+  fromStatus  InvoiceStatus? @map("from_status")
+  toStatus    InvoiceStatus  @map("to_status")
+  actorUserId String?        @map("actor_user_id") @db.Uuid
+  comment     String?
+  occurredAt  DateTime       @default(now()) @map("occurred_at") @db.Timestamptz(6)
+
+  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  actor   AppUser? @relation(fields: [actorUserId], references: [id])
+
+  @@index([invoiceId, occurredAt(sort: Desc)], map: "idx_wfe_invoice")
+  @@index([actorUserId], map: "idx_wfe_actor")
+  @@map("workflow_event")
+}
+
+// -----------------------------------------------------------------------------
+// Budgets
+// -----------------------------------------------------------------------------
+model Budget {
+  id              String   @id @default(uuid()) @db.Uuid
+  siteId          String   @map("site_id") @db.Uuid
+  periodMonth     DateTime @map("period_month") @db.Date
+  forecastGbp     Decimal  @map("forecast_gbp") @db.Decimal(12, 2)
+  notes           String?
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdBy AppUser? @relation(fields: [createdByUserId], references: [id])
+
+  @@unique([siteId, periodMonth])
+  @@map("budget")
+}
+
+// -----------------------------------------------------------------------------
+// Audit log
+// -----------------------------------------------------------------------------
+model AuditLog {
+  id          String      @id @default(uuid()) @db.Uuid
+  actorUserId String?     @map("actor_user_id") @db.Uuid
+  action      AuditAction
+  entityType  String      @map("entity_type")
+  entityId    String?     @map("entity_id") @db.Uuid
+  ipAddress   String?     @map("ip_address") @db.Inet
+  userAgent   String?     @map("user_agent")
+  details     Json?
+  occurredAt  DateTime    @default(now()) @map("occurred_at") @db.Timestamptz(6)
+
+  actor AppUser? @relation(fields: [actorUserId], references: [id])
+
+  @@index([actorUserId, occurredAt(sort: Desc)], map: "idx_audit_actor")
+  @@index([entityType, entityId], map: "idx_audit_entity")
+  @@index([occurredAt(sort: Desc)], map: "idx_audit_occurred")
+  @@map("audit_log")
+}
+
+// -----------------------------------------------------------------------------
+// Sessions
+// -----------------------------------------------------------------------------
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  ipAddress String?   @map("ip_address") @db.Inet
+  userAgent String?   @map("user_agent")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_session_user")
+  @@map("session")
+}
