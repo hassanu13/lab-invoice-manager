@@ -19,6 +19,14 @@ dist/
 .env*.local
 .env.production
 
+# Catch-all for stray secret files. Keep ANY file that mentions a credential
+# in its name out of git, even if someone forgets to put it in .env.local.
+*API_KEY*
+*SECRET*
+*.key
+*.pem
+*credentials*
+
 # vercel
 .vercel
 
@@ -41,3 +49,7 @@ infra/data/
 
 # local uploads (PDFs)
 uploads/
+
+# Sample lab invoices contain real patient names. Never commit. The path is
+# referenced by the extractor's tests and is provisioned out-of-band.
+samples/pdfs/
