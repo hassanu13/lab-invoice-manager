@@ -10,17 +10,15 @@
  *   2. Importing it from this file.
  */
 
-// Parsers will be added here as they're ported from extract_invoice.py.
-// Each parser file calls `registerParser(...)` at module top level.
-
-// Reserved imports — uncomment as parsers land:
-// import './3dental';
-// import './dent8-innovate';
-// import './hall';
-// import './carl-kearney';
-// import './aesthetic-world';
-// import './digital-prosthetics';
-// import './s4s';
-// import './standard';
+// IMPORTANT: order doesn't matter — parsers are looked up by key, not order.
+// Listed alphabetically by file name for maintainability.
+import './3dental';
+import './aesthetic-world';
+import './carl-kearney';
+import './dent8-innovate';
+import './digital-prosthetics';
+import './hall';
+import './s4s';
+import './standard';
 
 export {};

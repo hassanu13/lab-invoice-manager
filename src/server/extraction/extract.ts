@@ -17,6 +17,7 @@
 import { extractPdfTextAndTables } from './pdf';
 import { detectLab, detectFormat } from './helpers';
 import { getParser } from './parser';
+import { claudeFallback } from './claude';
 import type { ExtractionResult, ParserName } from './types';
 
 // Side-effect import: registers all built-in parsers.
@@ -51,11 +52,17 @@ export async function extractInvoice(
     }
   }
 
-  // Future: if rows.length === 0 && opts.enableClaudeFallback, route to Claude.
-  // Will land in the dedicated AI-fallback task once the API key is in place.
+  // AI fallback: if no parser produced rows, hand the raw text to Claude.
+  // Disabled by default — caller opts in via enableClaudeFallback.
   if (!rows.length && opts.enableClaudeFallback) {
-    parserUsed = 'claude_fallback';
-    // TODO: implement in src/server/extraction/claude.ts
+    try {
+      rows = await claudeFallback({ text: ctx.text, filename });
+      parserUsed = 'claude_fallback';
+    } catch (e) {
+      // Surface the error for logging upstream, but don't crash the request —
+      // the caller can still show "extraction failed, please enter manually".
+      console.error('claude_fallback_failed', { filename, error: (e as Error).message });
+    }
   }
 
   return {
