@@ -34,7 +34,9 @@ export const KNOWN_LABS = [
  */
 export function cleanAmount(raw: string | number | null | undefined): number | null {
   if (raw === null || raw === undefined) return null;
-  const cleaned = String(raw).trim().replace(/[£$,\s]/g, '');
+  const cleaned = String(raw)
+    .trim()
+    .replace(/[£$,\s]/g, '');
   const val = parseFloat(cleaned);
   if (Number.isNaN(val) || val === 0) return null;
   return Math.round(val * 100) / 100;
@@ -80,7 +82,10 @@ export function detectFormat(text: string): ExtractionFormat {
   // Dent8 + Innovate share a portal format. Match an INV- prefix and the
   // typical headings — the \x00 / "pa\x00ent" check is a real artefact of
   // some PDF text layers, kept verbatim from the Python.
-  if (/inv-[a-z0-9]+/.test(t) && (t.includes('invoice amount') || t.includes('pa\x00ent') || t.includes('pa ent'))) {
+  if (
+    /inv-[a-z0-9]+/.test(t) &&
+    (t.includes('invoice amount') || t.includes('pa\x00ent') || t.includes('pa ent'))
+  ) {
     return 'dent8_innovate';
   }
 
@@ -92,11 +97,13 @@ export function detectFormat(text: string): ExtractionFormat {
  * but with apostrophes preserved (so "O'Brien" stays "O'Brien", not "O'brien").
  */
 export function toTitleCase(input: string): string {
-  return input
-    .toLowerCase()
-    .replace(/\b([a-z])/g, (_, c: string) => c.toUpperCase())
-    // Restore capital after an apostrophe inside a word: "o'brien" -> "O'Brien".
-    .replace(/([A-Za-z])'([a-z])/g, (_, a: string, b: string) => `${a}'${b.toUpperCase()}`);
+  return (
+    input
+      .toLowerCase()
+      .replace(/\b([a-z])/g, (_, c: string) => c.toUpperCase())
+      // Restore capital after an apostrophe inside a word: "o'brien" -> "O'Brien".
+      .replace(/([A-Za-z])'([a-z])/g, (_, a: string, b: string) => `${a}'${b.toUpperCase()}`)
+  );
 }
 
 /**

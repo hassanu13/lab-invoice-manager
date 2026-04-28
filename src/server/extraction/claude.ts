@@ -60,14 +60,10 @@ interface ClaudeFallbackArgs {
   apiKey?: string;
 }
 
-export async function claudeFallback(
-  args: ClaudeFallbackArgs,
-): Promise<ExtractedInvoiceRow[]> {
+export async function claudeFallback(args: ClaudeFallbackArgs): Promise<ExtractedInvoiceRow[]> {
   const apiKey = args.apiKey ?? process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    throw new Error(
-      'ANTHROPIC_API_KEY not set — cannot run AI fallback extractor.',
-    );
+    throw new Error('ANTHROPIC_API_KEY not set — cannot run AI fallback extractor.');
   }
 
   let text = args.text;

@@ -19,11 +19,8 @@ const hallParser: LabParser = {
   format: 'hall',
   parse(ctx: PdfExtractionContext, lab: string | null): ExtractedInvoiceRow[] {
     const text = ctx.text;
-    const stmtDate =
-      text.match(/Unpaid items up to[:\s]+(\d{2}\/\d{2}\/\d{4})/i)?.[1] ?? null;
-    const totalDue = cleanAmount(
-      text.match(/AMOUNT\s+DUE[:\s]+[£$]?([\d,]+\.?\d*)/i)?.[1] ?? null,
-    );
+    const stmtDate = text.match(/Unpaid items up to[:\s]+(\d{2}\/\d{2}\/\d{4})/i)?.[1] ?? null;
+    const totalDue = cleanAmount(text.match(/AMOUNT\s+DUE[:\s]+[£$]?([\d,]+\.?\d*)/i)?.[1] ?? null);
 
     const rows: ExtractedInvoiceRow[] = [];
     for (const m of text.matchAll(LINE_PATTERN)) {

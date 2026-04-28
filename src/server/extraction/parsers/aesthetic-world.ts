@@ -15,7 +15,8 @@ import type { ExtractedInvoiceRow, PdfExtractionContext } from '../types';
 const PRIMARY =
   /(\d{2}\/\d{2}\/\d{4})\s+(INV-[\w-]+)\s+([A-Z][A-Z\s]{2,40}?)\s{2,}.+?\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})/gi;
 
-const FALLBACK = /(\d{2}\/\d{2}\/\d{4})\s+(INV-[\w-]+)\s+(.+?)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*$/gm;
+const FALLBACK =
+  /(\d{2}\/\d{2}\/\d{4})\s+(INV-[\w-]+)\s+(.+?)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*$/gm;
 
 const aestheticWorldParser: LabParser = {
   format: 'aestheticworld',

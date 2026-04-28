@@ -36,9 +36,7 @@ const threeDentalParser: LabParser = {
       }
     }
 
-    const balance = cleanAmount(
-      text.match(/BALANCE\s+DUE\s+[£$]?([\d,]+\.?\d*)/i)?.[1] ?? null,
-    );
+    const balance = cleanAmount(text.match(/BALANCE\s+DUE\s+[£$]?([\d,]+\.?\d*)/i)?.[1] ?? null);
     const total = cleanAmount(text.match(/\bTOTAL\b\s+[£$]?([\d,]+\.?\d*)/i)?.[1] ?? null);
 
     const seenOrders = new Map<string, OrderAccumulator>();
@@ -60,9 +58,7 @@ const threeDentalParser: LabParser = {
         if (!row || row.every((c) => c === null)) continue;
         const oid = String(row[col.order ?? 0] ?? '').trim();
         const patient = String(row[col.patient ?? 1] ?? '').trim();
-        const amount = cleanAmount(
-          col.total !== undefined ? row[col.total] ?? null : null,
-        );
+        const amount = cleanAmount(col.total !== undefined ? (row[col.total] ?? null) : null);
         if (!oid || oid.toLowerCase() === 'orderid') continue;
 
         const existing = seenOrders.get(oid);

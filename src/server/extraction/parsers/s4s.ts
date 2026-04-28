@@ -28,7 +28,9 @@ const s4sParser: LabParser = {
 
     for (const table of ctx.tables) {
       if (!table || table.length < 2) continue;
-      const header = (table[0] ?? []).map((c) => (c ?? '').toLowerCase().replace(/\n/g, ' ').trim());
+      const header = (table[0] ?? []).map((c) =>
+        (c ?? '').toLowerCase().replace(/\n/g, ' ').trim(),
+      );
       const headerJoined = header.join(' ');
       if (!headerJoined.includes('type') || !headerJoined.includes('details')) continue;
 
@@ -45,13 +47,16 @@ const s4sParser: LabParser = {
         else if (h === 'type') col.type = i;
         else if (h === 'ref') col.ref = i;
         else if (h === 'details') col.details = i;
-        else if (h.includes('credit') && !h.includes('unapplied') && !h.includes('original')) col.credit = i;
+        else if (h.includes('credit') && !h.includes('unapplied') && !h.includes('original'))
+          col.credit = i;
         else if (h.includes('original')) col.orig = i;
       });
 
       for (const row of table.slice(1)) {
         if (!row || row.every((c) => c === null || String(c).trim() === '')) continue;
-        const typeVal = String(row[col.type ?? 1] ?? '').trim().toLowerCase();
+        const typeVal = String(row[col.type ?? 1] ?? '')
+          .trim()
+          .toLowerCase();
         const details = String(row[col.details ?? 4] ?? '').trim();
         const date = String(row[col.date ?? 0] ?? '').trim();
         const ref = String(row[col.ref ?? 3] ?? '').trim();

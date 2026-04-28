@@ -29,11 +29,7 @@ const dent8InnovateParser: LabParser = {
     let resolvedLab = lab;
     if (!resolvedLab) {
       const lower = text.toLowerCase();
-      if (
-        lower.includes('dent8') ||
-        lower.includes('blackpool') ||
-        lower.includes('garton')
-      ) {
+      if (lower.includes('dent8') || lower.includes('blackpool') || lower.includes('garton')) {
         resolvedLab = 'Dent8';
       } else if (
         lower.includes('innovate') ||

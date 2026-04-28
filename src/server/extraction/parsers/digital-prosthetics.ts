@@ -19,11 +19,8 @@ const digitalProstheticsParser: LabParser = {
   format: 'digitalprothetics',
   parse(ctx: PdfExtractionContext, lab: string | null): ExtractedInvoiceRow[] {
     const text = ctx.text;
-    const stmtDate =
-      text.match(/Statement\s+Date\s+(\d{2}\/\d{2}\/\d{4})/i)?.[1] ?? null;
-    const totalDue = cleanAmount(
-      text.match(/Total\s+Due\s+([\d,]+\.?\d*)/i)?.[1] ?? null,
-    );
+    const stmtDate = text.match(/Statement\s+Date\s+(\d{2}\/\d{2}\/\d{4})/i)?.[1] ?? null;
+    const totalDue = cleanAmount(text.match(/Total\s+Due\s+([\d,]+\.?\d*)/i)?.[1] ?? null);
 
     let paymentTotal: number | null = null;
     const rows: ExtractedInvoiceRow[] = [];
@@ -57,7 +54,8 @@ const digitalProstheticsParser: LabParser = {
         const invMatch = typeVal.match(/Invoice\s+(INV\d+)/i);
         if (invMatch) {
           const invNo = invMatch[1] ?? null;
-          const date = (col.date !== undefined ? String(row[col.date] ?? '') : '').trim() || stmtDate;
+          const date =
+            (col.date !== undefined ? String(row[col.date] ?? '') : '').trim() || stmtDate;
           const patientRaw = String(row[col.patient ?? 3] ?? '').trim();
           const patient = patientRaw ? toTitleCase(patientRaw) : null;
           const amount = col.amount !== undefined ? cleanAmount(row[col.amount] ?? null) : null;
@@ -75,7 +73,7 @@ const digitalProstheticsParser: LabParser = {
             }),
           );
         } else if (typeVal.toLowerCase().includes('payment')) {
-          const amt = col.amount !== undefined ? row[col.amount] ?? null : null;
+          const amt = col.amount !== undefined ? (row[col.amount] ?? null) : null;
           if (amt !== null) {
             paymentTotal = cleanAmount(String(amt).replace(/-/g, ''));
           }

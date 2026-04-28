@@ -8,11 +8,7 @@
  *   - Field is a heuristic guess or fallback only → 'low'
  *   - Field wasn't found → null value, confidence 'low'
  */
-import type {
-  ConfidenceLevel,
-  ExtractionConfidence,
-  ExtractedInvoiceRow,
-} from './types';
+import type { ConfidenceLevel, ExtractionConfidence, ExtractedInvoiceRow } from './types';
 
 const CONFIDENCE_RANK: Record<ConfidenceLevel, number> = {
   high: 3,

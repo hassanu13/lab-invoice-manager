@@ -117,9 +117,7 @@ export async function extractPdfTextAndTables(
             const idx = nearestColumnIndex(it.x, columnAnchors);
             cells[idx]?.push(it.str);
           }
-          const rowCells = cells.map((c) =>
-            c.length === 0 ? null : c.join(' ').trim() || null,
-          );
+          const rowCells = cells.map((c) => (c.length === 0 ? null : c.join(' ').trim() || null));
           // Only keep rows with ≥2 non-null columns — single-cell rows are
           // headers/footnotes and would pollute the table.
           if (rowCells.filter((c) => c).length >= 2) {

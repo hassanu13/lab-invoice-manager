@@ -2,11 +2,7 @@
  * Parser registry. Each lab format has a parser implementing this interface.
  * The dispatcher (./extract.ts) picks one based on detectFormat() output.
  */
-import type {
-  ExtractionFormat,
-  ExtractedInvoiceRow,
-  PdfExtractionContext,
-} from './types';
+import type { ExtractionFormat, ExtractedInvoiceRow, PdfExtractionContext } from './types';
 
 export interface LabParser {
   /** Format key this parser handles. Matches detectFormat() output. */
