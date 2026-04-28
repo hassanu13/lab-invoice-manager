@@ -45,7 +45,10 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid input', issues: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Invalid input', issues: parsed.error.issues },
+      { status: 400 },
+    );
   }
   const { email, fullName, phone, password, roles } = parsed.data;
 

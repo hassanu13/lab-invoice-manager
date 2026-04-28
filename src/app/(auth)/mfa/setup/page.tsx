@@ -58,8 +58,8 @@ export default function MfaSetupPage() {
         <div className="rounded-lg border border-sand bg-cream p-8 shadow-sm">
           <h1 className="mb-1 text-xl font-medium text-slate">Set up two-step verification</h1>
           <p className="mb-6 text-sm text-moss">
-            Scan this QR code with Google Authenticator, 1Password, or any TOTP app, then enter
-            the 6-digit code to confirm.
+            Scan this QR code with Google Authenticator, 1Password, or any TOTP app, then enter the
+            6-digit code to confirm.
           </p>
           {data ? (
             <>

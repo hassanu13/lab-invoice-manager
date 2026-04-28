@@ -61,11 +61,22 @@ export function NewUserForm({ sites }: { sites: SiteOption[] }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="fullName">Full name</Label>
-          <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          <Input
+            id="fullName"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="phone">Phone (optional)</Label>

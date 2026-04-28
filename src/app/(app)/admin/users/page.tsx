@@ -21,7 +21,10 @@ export default async function UsersAdminPage() {
         siteRoles: { select: { role: true, site: { select: { name: true, slug: true } } } },
       },
     }),
-    prisma.site.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true, slug: true } }),
+    prisma.site.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, slug: true },
+    }),
   ]);
 
   return (

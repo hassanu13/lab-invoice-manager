@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
-import {
-  verifyPassword,
-  recordFailedLogin,
-  clearFailedLogins,
-  isLocked,
-} from '@/lib/auth';
+import { verifyPassword, recordFailedLogin, clearFailedLogins, isLocked } from '@/lib/auth';
 import { createSession } from '@/lib/session';
 import { getSession } from '@/lib/session';
 import { audit } from '@/lib/audit';

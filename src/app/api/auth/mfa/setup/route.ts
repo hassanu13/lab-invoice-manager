@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
-import {
-  generateMfaSecret,
-  buildOtpAuthUrl,
-  buildMfaQrCodeDataUrl,
-  verifyTotp,
-} from '@/lib/auth';
+import { generateMfaSecret, buildOtpAuthUrl, buildMfaQrCodeDataUrl, verifyTotp } from '@/lib/auth';
 import { getSession, getActiveSession } from '@/lib/session';
 
 /**
