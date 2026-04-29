@@ -1,0 +1,42 @@
+[
+  {
+    "invoiceDate": "02/03/2026",
+    "invoiceNumber": "INV44458",
+    "jobReference": null,
+    "patientName": "Abigail Bates",
+    "laboratoryName": "Digital Prosthetics",
+    "invoicedAmount": 164,
+    "paymentsMade": null,
+    "balance": 4499
+  },
+  {
+    "invoiceDate": "23/03/2026",
+    "invoiceNumber": "INV45439",
+    "jobReference": null,
+    "patientName": "Rebecca Huggill",
+    "laboratoryName": "Digital Prosthetics",
+    "invoicedAmount": 164,
+    "paymentsMade": null,
+    "balance": 4663
+  },
+  {
+    "invoiceDate": "30/03/2026",
+    "invoiceNumber": "INV45817",
+    "jobReference": null,
+    "patientName": "Sarah Cooper",
+    "laboratoryName": "Digital Prosthetics",
+    "invoicedAmount": 1539,
+    "paymentsMade": null,
+    "balance": 6202
+  },
+  {
+    "invoiceDate": null,
+    "invoiceNumber": "STATEMENT TOTAL",
+    "jobReference": null,
+    "patientName": "(3 invoices)",
+    "laboratoryName": "Digital Prosthetics",
+    "invoicedAmount": null,
+    "paymentsMade": null,
+    "balance": 4703
+  }
+]

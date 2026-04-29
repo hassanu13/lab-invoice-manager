@@ -2,9 +2,10 @@
 # Run from the repo root: `npm run infra:up` (or `docker compose -f infra/docker-compose.yml up -d`)
 #
 # Services:
-#   postgres : Postgres 15 (mirrors AWS RDS target)
-#   minio    : S3-compatible object storage for local PDF uploads
+#   postgres   : Postgres 15 (mirrors AWS RDS target)
+#   minio      : S3-compatible object storage for local PDF uploads
 #   minio-init : one-shot job that creates the dev bucket on first run
+#   extractor  : FastAPI service wrapping the production-tested extract_invoice.py
 
 services:
   postgres:
@@ -57,3 +58,17 @@ services:
       mc anonymous set none local/dsd-lim-dev &&
       echo 'Bucket dsd-lim-dev ready.'
       "
+
+  extractor:
+    build:
+      context: ../extractor
+    container_name: lim-extractor
+    restart: unless-stopped
+    ports:
+      - '8000:8000'
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s

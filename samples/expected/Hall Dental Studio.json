@@ -1,0 +1,42 @@
+[
+  {
+    "invoiceDate": "12/01/26",
+    "invoiceNumber": "INV67806",
+    "jobReference": "T61617",
+    "patientName": "H Bray B1",
+    "laboratoryName": "Hall Dental Studio",
+    "invoicedAmount": 150,
+    "paymentsMade": null,
+    "balance": null
+  },
+  {
+    "invoiceDate": "22/01/26",
+    "invoiceNumber": "INV67911",
+    "jobReference": "T61638",
+    "patientName": "N Shotton B1",
+    "laboratoryName": "Hall Dental Studio",
+    "invoicedAmount": 300,
+    "paymentsMade": null,
+    "balance": null
+  },
+  {
+    "invoiceDate": "22/01/26",
+    "invoiceNumber": "INV67923",
+    "jobReference": "T61476",
+    "patientName": "K Bath R 64321 12346 L",
+    "laboratoryName": "Hall Dental Studio",
+    "invoicedAmount": 2925,
+    "paymentsMade": null,
+    "balance": null
+  },
+  {
+    "invoiceDate": null,
+    "invoiceNumber": "STATEMENT TOTAL",
+    "jobReference": null,
+    "patientName": "(3 invoices)",
+    "laboratoryName": "Hall Dental Studio",
+    "invoicedAmount": null,
+    "paymentsMade": null,
+    "balance": null
+  }
+]

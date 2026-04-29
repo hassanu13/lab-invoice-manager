@@ -18,9 +18,45 @@
  * written parser does. The confirmation screen flags every field for review.
  */
 import Anthropic from '@anthropic-ai/sdk';
-import { cleanAmount, detectLab } from './helpers';
 import { makeRow } from './confidence';
 import type { ExtractedInvoiceRow } from './types';
+
+/** Same canonical lab list as the Python extractor. */
+const KNOWN_LABS = [
+  'Hall Dental Studio',
+  'Innovate Dental',
+  'Dent8',
+  'Invisalign',
+  'Carl Kearney',
+  'Digital Prosthetics',
+  'S4S',
+  'Aesthetic World',
+  '3 Dental',
+  'Avant Garde',
+  'Boutique Whitening',
+] as const;
+
+/** Best-effort lab detection from raw text. Mirrors the Python detect_lab(). */
+function detectLab(text: string): string | null {
+  const lowered = text.toLowerCase();
+  for (const lab of KNOWN_LABS) {
+    if (lowered.includes(lab.toLowerCase())) return lab;
+  }
+  if (/INV-D[0-9]/.test(text)) return 'Dent8';
+  if (/INV-IN[0-9]/.test(text)) return 'Innovate Dental';
+  return null;
+}
+
+/** Strip currency symbols/commas and parse to a 2dp number. Null for 0 / unparseable. */
+function cleanAmount(raw: string | number | null | undefined): number | null {
+  if (raw === null || raw === undefined) return null;
+  const cleaned = String(raw)
+    .trim()
+    .replace(/[£$,\s]/g, '');
+  const val = parseFloat(cleaned);
+  if (Number.isNaN(val) || val === 0) return null;
+  return Math.round(val * 100) / 100;
+}
 
 const MAX_INPUT_CHARS = 30_000;
 const MODEL = 'claude-haiku-4-5-20251001';

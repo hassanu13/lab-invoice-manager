@@ -1,0 +1,12 @@
+[
+  {
+    "invoiceDate": "20/01/2026",
+    "invoiceNumber": null,
+    "jobReference": null,
+    "patientName": null,
+    "laboratoryName": "Carl Kearney",
+    "invoicedAmount": 970,
+    "paymentsMade": null,
+    "balance": null
+  }
+]

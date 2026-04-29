@@ -1,0 +1,42 @@
+[
+  {
+    "invoiceDate": "2026-03-16",
+    "invoiceNumber": "755EBAE7",
+    "jobReference": "AMVLN1",
+    "patientName": "Kameron\nEdmondson",
+    "laboratoryName": "3 Dental",
+    "invoicedAmount": 15.33,
+    "paymentsMade": null,
+    "balance": null
+  },
+  {
+    "invoiceDate": "2026-03-16",
+    "invoiceNumber": "755EBAE7",
+    "jobReference": "AMVLO1",
+    "patientName": "Naomi\nEdmondson",
+    "laboratoryName": "3 Dental",
+    "invoicedAmount": 15.33,
+    "paymentsMade": null,
+    "balance": null
+  },
+  {
+    "invoiceDate": "2026-03-16",
+    "invoiceNumber": "755EBAE7",
+    "jobReference": "AMVQZ1",
+    "patientName": "Sarah Ahmed",
+    "laboratoryName": "3 Dental",
+    "invoicedAmount": 27.33,
+    "paymentsMade": null,
+    "balance": null
+  },
+  {
+    "invoiceDate": "2026-03-16",
+    "invoiceNumber": "755EBAE7",
+    "jobReference": "SUMMARY TOTAL",
+    "patientName": "(3 orders)",
+    "laboratoryName": "3 Dental",
+    "invoicedAmount": 57.99,
+    "paymentsMade": null,
+    "balance": 57.99
+  }
+]

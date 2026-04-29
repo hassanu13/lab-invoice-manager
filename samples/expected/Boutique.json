@@ -1,0 +1,12 @@
+[
+  {
+    "invoiceDate": "01/04/2026",
+    "invoiceNumber": null,
+    "jobReference": null,
+    "patientName": "Description Subtotal Tax Total",
+    "laboratoryName": "Boutique Whitening",
+    "invoicedAmount": 3,
+    "paymentsMade": null,
+    "balance": null
+  }
+]

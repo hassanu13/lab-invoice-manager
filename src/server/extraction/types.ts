@@ -66,18 +66,3 @@ export type ExtractionFormat =
 
 /** All parser names — same set as ExtractionFormat plus the AI fallback. */
 export type ParserName = ExtractionFormat | 'claude_fallback';
-
-/**
- * Output from the PDF text extractor — what each parser receives.
- *
- * `text`         : All pages concatenated with "\n" — same shape pdfplumber returns.
- * `tables`       : Reconstructed tables. Each table is row[][] of cell strings, mirroring
- *                  pdfplumber's page.extract_tables() output. Reconstruction uses
- *                  pdfjs-dist text-item coordinates and a column-clustering pass.
- * `pageTexts`    : Per-page text, in case a parser needs to scope something to one page.
- */
-export interface PdfExtractionContext {
-  text: string;
-  tables: (string | null)[][][];
-  pageTexts: string[];
-}
