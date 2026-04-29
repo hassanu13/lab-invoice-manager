@@ -108,20 +108,24 @@ CREATE TABLE lab (
 CREATE TRIGGER lab_updated BEFORE UPDATE ON lab
   FOR EACH ROW EXECUTE FUNCTION trg_set_updated_at();
 
--- Seed: known labs (from your existing extractor)
+-- Seed: known labs.
+-- Names below match the strings returned by extract_invoice.py's detect_lab().
+-- That keeps the upload route's `findUnique({where: {name}})` lookup working
+-- without a translation step. If the lab's legal/registered name differs,
+-- store it in `notes` rather than `name`.
 INSERT INTO lab (name, template_key) VALUES
-  ('Hall Dental Studio',           'hall_dental'),
-  ('Innovate Dental Lab',          'innovate'),
-  ('Dent8 Lab',                    'dent8'),
-  ('Align Technology (Invisalign)','invisalign'),
-  ('Digital Prosthetics',          'digital_prosthetics'),
-  ('Avant Garde',                  'avant_garde'),
-  ('Boutique Whitening',           'boutique_whitening'),
-  ('S4S (UK) Limited',             's4s'),
-  ('Carl Kearney Dental',          'carl_kearney'),
-  ('3 Dental',                     '3_dental'),
-  ('Aesthetic World',              'aesthetic_world'),
-  ('Vio Dental Lab',               'vio_dental');
+  ('Hall Dental Studio',  'hall_dental'),
+  ('Innovate Dental',     'innovate'),
+  ('Dent8',               'dent8'),
+  ('Invisalign',          'invisalign'),
+  ('Digital Prosthetics', 'digital_prosthetics'),
+  ('Avant Garde',         'avant_garde'),
+  ('Boutique Whitening',  'boutique_whitening'),
+  ('S4S',                 's4s'),
+  ('Carl Kearney',        'carl_kearney'),
+  ('3 Dental',            '3_dental'),
+  ('Aesthetic World',     'aesthetic_world'),
+  ('Vio Dental Lab',      'vio_dental');
 
 -- ---------------------------------------------------------------------------
 -- Clinicians

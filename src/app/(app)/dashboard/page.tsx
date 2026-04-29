@@ -30,9 +30,18 @@ export default async function DashboardPage() {
         <h1 className="mb-2 text-2xl font-medium text-slate">
           Welcome back, {user.fullName.split(' ')[0]}.
         </h1>
-        <p className="mb-8 text-slate/60">
-          Phase 1, Week 1 scaffold. Invoice features land in Week 2.
+        <p className="mb-6 text-slate/60">
+          Phase 1, Week 2 — upload is live. Confirmation + reporting land in Weeks 3 and 4.
         </p>
+
+        <div className="mb-10">
+          <Link
+            href="/uploads"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-slate px-4 text-sm font-medium text-eggshell transition-colors hover:bg-slate/90"
+          >
+            Upload an invoice →
+          </Link>
+        </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Invoices awaiting you" value="—" hint="Wired up in Week 3" />
